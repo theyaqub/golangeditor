@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Assist API Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        button {
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        /* Run Code Button */
+        button[onclick="runCode()"] {
+            background-color: #4CAF50; /* Green */
+        }
+        button[onclick="runCode()"]:hover {
+            background-color: #45a049;
+        }
+        
+        /* Fix Code Button */
+        button[onclick="fixCode()"] {
+            background-color: #2196F3; /* Blue */
+        }
+        button[onclick="fixCode()"]:hover {
+            background-color: #0b7dda;
+        }
+        
+        /* Get Help Button */
+        button[onclick="getHelp()"] {
+            background-color: #ff9800; /* Orange */
+        }
+        button[onclick="getHelp()"]:hover {
+            background-color: #e68a00;
+        }
+        .response {
+            background-color: #f8f9fa;
+            border-left: 4px solid #4CAF50;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Code Assist API Tester</h1>
+        
+        <div class="card">
+            <h2>1. Run Code</h2>
+            <p>Test your Go code execution (simulated)</p>
+            <textarea id="runCode" placeholder="Enter your Go code here...">package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, World!")
+}</textarea>
+            <button onclick="runCode()">Run Code</button>
+            <div class="response" id="runResponse">Response will appear here...</div>
+        </div>
+
+        <div class="card">
+            <h2>2. Auto-Fix Code</h2>
+            <p>Fix common code formatting issues</p>
+            <textarea id="fixCode" placeholder="Enter code to fix...">package main
+
+func main() {
+    fmt.Println("Hello, World!")
+    // Missing closing brace</textarea>
+            <button onclick="fixCode()">Fix Code</button>
+            <div class="response" id="fixResponse">Fixed code will appear here...</div>
+        </div>
+
+        <div class="card">
+            <h2>3. Get Help</h2>
+            <p>Get help with Go programming</p>
+            <input type="text" id="helpQuery" placeholder="Enter your question (e.g., 'function', 'loop', 'error')" style="width: 100%; padding: 10px; margin: 10px 0;">
+            <button onclick="getHelp()">Get Help</button>
+            <div class="response" id="helpResponse">Help will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001';
+
+        async function runCode() {
+            const code = document.getElementById('runCode').value;
+            const responseElement = document.getElementById('runResponse');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/run`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code })
+                });
+                const data = await response.json();
+                responseElement.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseElement.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function fixCode() {
+            const code = document.getElementById('fixCode').value;
+            const responseElement = document.getElementById('fixResponse');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/autofix`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code })
+                });
+                const data = await response.json();
+                responseElement.textContent = data.fixed_code || JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseElement.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function getHelp() {
+            const query = document.getElementById('helpQuery').value;
+            const responseElement = document.getElementById('helpResponse');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/help`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query })
+                });
+                const data = await response.json();
+                responseElement.textContent = data.help || JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseElement.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
